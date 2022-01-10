@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urljoin, urlparse
 
 import discord
 
@@ -16,11 +17,15 @@ async def on_message(message):
         return
 
     if message.content.startswith('https://'):
-        url = message.content
+        if "youtube.com" in message.content:
+            url = message.content
+        else:
+            url = message.content.split('?')[0]
+        
         message_url = message.jump_url
 
         if url in link_to_message:
-            await message.channel.send(f"Already seen! Check out {link_to_message[url]}")
+            await message.channel.send(f"Someone posted this link elsewhere! There may already be a discussion, check out {link_to_message[url]}")
         else:     
             link_to_message[url] = message_url
 
