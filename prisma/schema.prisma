@@ -12,21 +12,25 @@ datasource db {
 
 model Message {
   id        Int      @id @default(autoincrement())
-  discordId BigInt
+  discordId BigInt @unique
+  messageUrl String?
   createdAt DateTime @default(now())
   discordTimestamp DateTime
   content   String?
+  sharedUrl String?
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
   channel Channel @relation(fields: [channelId], references: [id])
   channelId Int
+  guild Guild? @relation(fields: [guildId], references: [id])
+  guildId Int?
 
   @@map("messages")
 }
 
 model Channel {
   id     Int     @id @default(autoincrement())
-  discordId BigInt
+  discordId BigInt @unique
   guild   Guild    @relation(fields: [guildId], references: [id])
   guildId Int
   messages Message[]
@@ -36,8 +40,9 @@ model Channel {
 
 model User {
   id      Int      @id @default(autoincrement())
-  discordId BigInt
+  discordId BigInt @unique
   username    String?
+  discriminator String?
   messages Message[]
 
   @@map("users")
@@ -45,9 +50,10 @@ model User {
 
 model Guild {
   id      Int      @id @default(autoincrement())
-  discordId BigInt
+  discordId BigInt @unique
   name    String?
   channels Channel[]
+  messages Message[]
 
   @@map("guilds")
 }
