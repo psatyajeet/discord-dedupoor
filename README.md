@@ -4,13 +4,11 @@ Calls out messages that have already been posted!
 
 ## How to run
 
-`pipenv run python3 src/main.py`
 `npm run start`
 
 ## Discord
 
 Add bot to server: https://discord.com/api/oauth2/authorize?client_id=929935746167615508&permissions=117760&scope=bot
-
 
 ## Prisma
 
@@ -30,4 +28,6 @@ Whenever you make changes to your Prisma schema in the future, you manually need
 
 This reads your Prisma schema and generates a version of Prisma Client that is tailored to your models :O
 
+## Run tests
 
+`npm run tests`
