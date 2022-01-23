@@ -1,8 +1,7 @@
 import { Client, Message } from "discord.js";
+import normalizeUrl from "normalize-url";
 import urlRegex from "url-regex";
 import prisma from "../prismaClient";
-
-
 
 export function getUrlFromMessage(
   message: string,
@@ -22,7 +21,14 @@ export function getUrlFromMessage(
 }
 
 export function getNormalizedUrl(url: string): string {
-  return url.includes("youtube.com") ? url : url.split("?")[0];
+  const defaultParams = { normalizeProtocol: true, forceHttps: true };
+  return url.includes("youtube.com")
+    ? normalizeUrl(url, { ...defaultParams })
+    : normalizeUrl(url, {
+        removeQueryParameters: true,
+        ...defaultParams,
+      });
+  // return url.includes("youtube.com") ? url : url.split("?")[0];
 }
 
 export async function saveMessage(

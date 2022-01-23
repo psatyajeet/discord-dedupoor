@@ -59,21 +59,35 @@ describe("messageCreate.ts", () => {
 
   describe("getNormalizedUrl", () => {
     test("should return url without params", () => {
-      const url = getNormalizedUrl(
-        "https://twitter.com/blknoiz06/status/1483297295126913024?s=20231234"
-      );
+      expect(
+        getNormalizedUrl(
+          "https://twitter.com/blknoiz06/status/1483297295126913024?s=20231234"
+        )
+      ).toEqual("https://twitter.com/blknoiz06/status/1483297295126913024");
 
-      expect(url).toEqual(
-        "https://twitter.com/blknoiz06/status/1483297295126913024"
-      );
+      expect(
+        getNormalizedUrl(
+          "https://www.twitter.com/blknoiz06/status/1483297295126913024?s=20231234"
+        )
+      ).toEqual("https://twitter.com/blknoiz06/status/1483297295126913024");
+
+      expect(
+        getNormalizedUrl(
+          "www.twitter.com/blknoiz06/status/1483297295126913024?s=20231234"
+        )
+      ).toEqual("https://twitter.com/blknoiz06/status/1483297295126913024");
+
+      expect(
+        getNormalizedUrl(
+          "twitter.com/blknoiz06/status/1483297295126913024?s=20231234"
+        )
+      ).toEqual("https://twitter.com/blknoiz06/status/1483297295126913024");
     });
 
     test("for youtube, should return url with params", () => {
-      const url = getNormalizedUrl(
-        "https://www.youtube.com/watch?v=9UNuqYFP-pM"
-      );
-
-      expect(url).toEqual("https://www.youtube.com/watch?v=9UNuqYFP-pM");
+      expect(
+        getNormalizedUrl("https://www.youtube.com/watch?v=9UNuqYFP-pM")
+      ).toEqual("https://youtube.com/watch?v=9UNuqYFP-pM");
     });
   });
 });
