@@ -10,6 +10,11 @@ Calls out messages that have already been posted!
 
 Add bot to server: https://discord.com/api/oauth2/authorize?client_id=929935746167615508&permissions=117760&scope=bot
 
+## Deploy to Railway
+
+`npm i -g @railway/cli` if needed
+`railway up`
+
 ## Prisma
 
 https://www.prisma.io/docs/getting-started/setup-prisma/start-from-scratch/relational-databases-typescript-postgres
