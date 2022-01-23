@@ -2,37 +2,30 @@ import { Client, Message } from "discord.js";
 import urlRegex from "url-regex";
 import prisma from "../prismaClient";
 
-export default (client: Client): void => {
-  client.on("messageCreate", async (message) => {
-    if (message.author.bot) return;
 
-    try {
-      await handleMessage(client, message);
-    } catch (err) {
-      console.log(err);
-    }
-  });
-};
 
-export function getUrlFromMessage(message: string): string | null {
-  const urlMatch = message.match(urlRegex());
+export function getUrlFromMessage(
+  message: string,
+  strict = true
+): string | null {
+  const urlMatch = message.match(urlRegex({ strict }));
 
   if (urlMatch) {
     const url = urlMatch[0];
     if ([",", "."].includes(url.charAt(url.length - 1))) {
       return url.slice(0, url.length - 1);
     }
-    return urlMatch[0];
+    return url;
   }
 
-  return null;
+  return strict ? getUrlFromMessage(message, false) : null;
 }
 
 export function getNormalizedUrl(url: string): string {
   return url.includes("youtube.com") ? url : url.split("?")[0];
 }
 
-async function saveMessage(
+export async function saveMessage(
   guildDiscordId: number,
   channelDiscordId: number,
   messageDiscordId: number,
@@ -95,11 +88,14 @@ async function saveMessage(
   return result;
 }
 
-async function handleMessage(client: Client, message: Message): Promise<void> {
+export async function handleMessage(
+  client: Client,
+  message: Message
+): Promise<void> {
   const parsedUrl = getUrlFromMessage(message.content);
 
   if (!parsedUrl) {
-    console.log(`No url in message ${message.content}`);
+    console.log(`No url in message "${message.content}"`);
     return;
   }
 
@@ -157,3 +153,15 @@ async function handleMessage(client: Client, message: Message): Promise<void> {
     );
   }
 }
+
+export default (client: Client): void => {
+  client.on("messageCreate", async (message) => {
+    if (message.author.bot) return;
+
+    try {
+      await handleMessage(client, message);
+    } catch (err) {
+      console.log(err);
+    }
+  });
+};
