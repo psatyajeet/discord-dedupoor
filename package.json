@@ -26,9 +26,14 @@
   "description": "",
   "version": "1.0.0",
   "main": "index.js",
+  "type-check": "tsc",
   "scripts": {
-    "test": "jest",
-    "start": "ts-node src/Bot.ts"
+    "test": "NODE_ENV=test jest --colors --coverage",
+    "start": "ts-node src/Bot.ts",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
+    "generate": "prisma generate"
   },
   "repository": {
     "type": "git",
