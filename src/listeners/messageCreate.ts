@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import { Client, Message } from "discord.js";
-
-const prisma = new PrismaClient();
+import urlRegex from "url-regex";
+import prisma from "../prismaClient";
 
 export default (client: Client): void => {
   client.on("messageCreate", async (message) => {
@@ -14,6 +13,79 @@ export default (client: Client): void => {
     }
   });
 };
+
+export function getUrlFromMessage(message: string): string | null {
+  const urlMatch = message.match(urlRegex());
+
+  if (urlMatch) {
+    const url = urlMatch[0];
+    if ([",", "."].includes(url.charAt(url.length - 1))) {
+      return url.slice(0, url.length - 1);
+    }
+    return urlMatch[0];
+  }
+
+  return null;
+}
+
+export function getNormalizedUrl(url: string): string {
+  return url.includes("youtube.com") ? url : url.split("?")[0];
+}
+
+async function saveMessage(
+  guildDiscordId: number,
+  channelDiscordId: number,
+  messageDiscordId: number,
+  authorDiscordId: number,
+  messageUrl: string,
+  discordTimestamp: Date,
+  content: string,
+  sharedUrl: string,
+  username: string,
+  discriminator: string
+) {
+  return await prisma.message.create({
+    data: {
+      discordId: messageDiscordId,
+      messageUrl,
+      discordTimestamp,
+      content,
+      sharedUrl,
+      author: {
+        connectOrCreate: {
+          where: {
+            discordId: authorDiscordId,
+          },
+          create: {
+            discordId: authorDiscordId,
+            username,
+            discriminator,
+          },
+        },
+      },
+      channel: {
+        connectOrCreate: {
+          where: {
+            discordId: channelDiscordId,
+          },
+          create: {
+            discordId: channelDiscordId,
+            guild: {
+              connectOrCreate: {
+                where: {
+                  discordId: guildDiscordId,
+                },
+                create: {
+                  discordId: guildDiscordId,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
 
 async function handleMessage(client: Client, message: Message): Promise<void> {
   if (message.content.includes("https://")) {
@@ -44,10 +116,8 @@ async function handleMessage(client: Client, message: Message): Promise<void> {
       return;
     }
 
-    const sharedUrl = content.includes("youtube.com")
-      ? content
-      : content.split("?")[0];
-    const messageUrl = message.url;
+    const sharedUrl = getNormalizedUrl(content); // The URL that was shared
+    const messageUrl = message.url; // Discord URL for the message
 
     const dbMessage = await prisma.message.findFirst({
       where: { sharedUrl, guildId: parseInt(guildDiscordId) },
@@ -59,47 +129,18 @@ async function handleMessage(client: Client, message: Message): Promise<void> {
         `@${dbMessage.author.username} posted this link earlier! There may be a discussion already, check out ${dbMessage.messageUrl}`
       );
     } else {
-      await prisma.message.create({
-        data: {
-          discordId: parseInt(messageDiscordId),
-          messageUrl,
-          discordTimestamp: new Date(createdTimestamp),
-          content,
-          sharedUrl,
-          author: {
-            connectOrCreate: {
-              where: {
-                discordId: parseInt(authorDiscordId),
-              },
-              create: {
-                discordId: parseInt(authorDiscordId),
-                username,
-                discriminator,
-              },
-            },
-          },
-          channel: {
-            connectOrCreate: {
-              where: {
-                discordId: parseInt(channelDiscordId),
-              },
-              create: {
-                discordId: parseInt(channelDiscordId),
-                guild: {
-                  connectOrCreate: {
-                    where: {
-                      discordId: parseInt(guildDiscordId),
-                    },
-                    create: {
-                      discordId: parseInt(guildDiscordId),
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
+      await saveMessage(
+        parseInt(guildDiscordId),
+        parseInt(channelDiscordId),
+        parseInt(messageDiscordId),
+        parseInt(authorDiscordId),
+        messageUrl,
+        new Date(createdTimestamp),
+        content,
+        sharedUrl,
+        username,
+        discriminator
+      );
     }
   }
 }
