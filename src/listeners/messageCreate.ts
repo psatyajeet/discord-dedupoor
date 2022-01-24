@@ -82,6 +82,16 @@ export async function saveMessage(
           },
         },
       },
+      guild: {
+        connectOrCreate: {
+          where: {
+            discordId: guildDiscordId,
+          },
+          create: {
+            discordId: guildDiscordId,
+          },
+        },
+      },
     },
   });
 
@@ -136,7 +146,10 @@ export async function handleMessage(
   const messageUrl = message.url; // Discord URL for the message
 
   const dbMessage = await prisma.message.findFirst({
-    where: { sharedUrl, guildId: parseInt(guildDiscordId) },
+    where: {
+      sharedUrl,
+      channel: { guild: { discordId: parseInt(guildDiscordId) } },
+    },
     include: { author: true },
   });
 

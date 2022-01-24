@@ -28,15 +28,14 @@ Only generate migration and apply separately
 `npx prisma migrate dev --create-only`
 `npx prisma migrate deploy`
 
-Then `npx prisma generate`. 
+Then `npx prisma generate`. Make sure to do this before you push to prod. 
 
 Whenever you make changes to your Prisma schema in the future, you manually need to invoke `npx prisma generate` in order to accommodate the changes in your Prisma Client API.
 
 This reads your Prisma schema and generates a version of Prisma Client that is tailored to your models :O
 
 ### In prod
-`npm run migrate:deploy`
-`npm run generate`
+`railway run npm run migrate:deploy`
 
 ## Run tests
 
