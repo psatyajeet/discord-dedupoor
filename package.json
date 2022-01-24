@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@babel/cli": "^7.16.8",
     "@babel/core": "^7.16.12",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
@@ -10,7 +11,7 @@
     "prettier": "2.5.1",
     "prisma": "^3.8.1",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.4"
+    "typescript": "^4.5.5"
   },
   "dependencies": {
     "@discordjs/builders": "^0.11.0",
@@ -19,7 +20,8 @@
     "discord-api-types": "^0.26.1",
     "discord.js": "^13.6.0",
     "dotenv": "^14.2.0",
-    "normalize-url": "^7.0.3",
+    "normalize-url": "^6.1.0",
+    "rimraf": "^3.0.2",
     "url-regex": "^5.0.0"
   },
   "name": "discord-dedupoor",
@@ -28,7 +30,10 @@
   "main": "index.js",
   "type-check": "tsc",
   "scripts": {
-    "test": "NODE_ENV=test jest --colors --coverage",
+    "clean": "rimraf dst",
+    "prettier-check": "prettier '**/*.{ts,js}' --list-different",
+    "prettier-run": "prettier '**/*.{ts,js}' -w",
+    "test": "npm run clean; NODE_ENV=test jest --colors --coverage",
     "start": "ts-node src/Bot.ts",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
